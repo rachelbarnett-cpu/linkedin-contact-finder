@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Senior Contact Finder â Pubity Pod Clients</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0f; color: #e8e8f0; min-height: 100vh; }
+.header { background: linear-gradient(135deg, #0077b5 0%, #00a0dc 50%, #005885 100%); padding: 36px 40px 28px; position: relative; overflow: hidden; }
+.header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 400px; height: 400px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+.header h1 { font-size: 24px; font-weight: 800; color: white; position: relative; }
+.header p { font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 6px; position: relative; }
+.pill { display: inline-block; background: rgba(255,255,255,0.15); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-top: 10px; margin-right: 6px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+.stat { background: #13131f; border: 1px solid #1e1e2e; border-radius: 12px; padding: 18px; text-align: center; }
+.stat .num { font-size: 30px; font-weight: 900; color: #0099d4; }
+.stat .label { font-size: 11px; color: #666; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+.controls { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+.search-input { flex: 1; min-width: 200px; background: #13131f; border: 1px solid #2a2a3e; border-radius: 24px; padding: 10px 18px; color: #e8e8f0; font-size: 13px; outline: none; }
+.search-input:focus { border-color: #0077b5; }
+.search-input::placeholder { color: #444; }
+.filter-btn { background: #13131f; border: 1px solid #2a2a3e; border-radius: 20px; padding: 8px 14px; font-size: 11px; font-weight: 700; color: #888; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.filter-btn:hover { border-color: #0077b5; color: #0099d4; }
+.filter-btn.active { background: #0077b5; color: white; border-color: #0077b5; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+.card { background: #13131f; border: 1px solid #1e1e2e; border-radius: 14px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
+.card:hover { border-color: #0077b5; transform: translateY(-2px); }
+.card-top { padding: 16px 18px 14px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1e1e2e; }
+.logo { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 17px; color: white; flex-shrink: 0; }
+.co-name { font-size: 15px; font-weight: 800; color: #f0f0ff; }
+.co-meta { font-size: 11px; color: #555; margin-top: 2px; }
+.slack-tag { margin-left: auto; background: #1a1a2a; border: 1px solid #2a2a3e; border-radius: 8px; padding: 3px 8px; font-size: 10px; color: #666; white-space: nowrap; flex-shrink: 0; }
+.card-body { padding: 14px 18px; }
+.sub-brands { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.sub-tag { background: #0d0d1a; border: 1px solid #2a2a3e; border-radius: 6px; padding: 3px 8px; font-size: 10px; color: #888; }
+
+/* Activity button */
+.activity-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #0d2535, #0d3555);
+  border: 1px solid #0d4470;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #5bb8e8;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+}
+.activity-btn:hover { background: linear-gradient(135deg, #0d3555, #0d5585); border-color: #0077b5; }
+.activity-btn.loading { opacity: 0.7; cursor: not-allowed; }
+.activity-pulse { width: 8px; height: 8px; background: #5bb8e8; border-radius: 50%; animation: pulse 1.2s ease-in-out infinite; flex-shrink: 0; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+/* Activity panel */
+.activity-panel {
+  background: #0a0f18;
+  border: 1px solid #0d3655;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+  display: none;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #8ab4cc;
+}
+.activity-panel.show { display: block; }
+.activity-panel h4 { color: #5bb8e8; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.activity-panel .activity-item {
+  border-left: 2px solid #0d3655;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  border-radius: 0 6px 6px 0;
+  background: #0d1520;
+}
+.activity-panel .activity-item:last-child { margin-bottom: 0; }
+.activity-panel .activity-item strong { color: #7cc8e8; display: block; margin-bottom: 3px; font-size: 11px; }
+.activity-panel .error { color: #e88; font-style: italic; }
+.activity-panel .loading-text { color: #5577aa; font-style: italic; }
+
+.links { display: flex; flex-direction: column; gap: 5px; }
+.li-link { display: flex; align-items: center; gap: 10px; background: #0d1520; border: 1px solid #0d3655; border-radius: 8px; padding: 9px 12px; text-decoration: none; color: #5bb8e8; font-size: 12px; font-weight: 600; transition: all 0.15s; }
+.li-link:hover { background: #0077b5; color: white; border-color: #0077b5; }
+.li-link .emoji { font-size: 13px; flex-shrink: 0; }
+.li-link .role { flex: 1; }
+.li-link .arr { opacity: 0.5; font-size: 11px; }
+.section-label { font-size: 10px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0 6px; }
+.tip { background: #0d1520; border-left: 3px solid #0077b5; border-radius: 0 6px 6px 0; padding: 8px 10px; font-size: 11px; color: #5a7a8a; margin-top: 10px; line-height: 1.5; }
+.badge { display: inline-block; padding: 2px 7px; border-radius: 8px; font-size: 10px; font-weight: 700; margin-right: 3px; }
+.b-cpg { background: #0d2010; color: #4caf50; }
+.b-tech { background: #0d1a30; color: #4a9eff; }
+.b-ent { background: #1a0d20; color: #c084fc; }
+.b-qsr { background: #1a1000; color: #fb923c; }
+.b-gaming { background: #100d20; color: #a78bfa; }
+.hidden { display: none !important; }
+footer { text-align: center; color: #333; font-size: 11px; padding: 24px 0; border-top: 1px solid #1e1e2e; margin-top: 40px; }
+@media(max-width:600px){ .stats{grid-template-columns:repeat(2,1fr)} .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>ð LinkedIn Senior Contact Finder</h1>
+  <p>VP Â· SVP Â· CMO Â· Head of Marketing Â· Global Marketing Director â all pod clients &amp; sub-brands</p>
+  <div><span class="pill">ð From Your Slack Pod Channels</span><span class="pill">ð« Coca-Cola Removed</span><span class="pill">â 12 Strategic Clients Â· 200+ Searches</span><span class="pill">â¡ Live LinkedIn Activity</span></div>
+</div>
+<div class="container">
+  <div class="stats">
+    <div class="stat"><div class="num">12</div><div class="label">Pod Clients</div></div>
+    <div class="stat"><div class="num">60+</div><div class="label">Sub-Brands</div></div>
+    <div class="stat"><div class="num">5</div><div class="label">Seniority Levels</div></div>
+    <div class="stat"><div class="num">200+</div><div class="label">LinkedIn Searches</div></div>
+  </div>
+  <div class="controls">
+    <input class="search-input" type="text" id="searchInput" placeholder="ð Search companies or brands..." oninput="applyFilters()">
+    <button class="filter-btn active" onclick="filterCat('all',this)">All</button>
+    <button class="filter-btn" onclick="filterCat('cpg',this)">CPG / Food</button>
+    <button class="filter-btn" onclick="filterCat('tech',this)">Tech</button>
+    <button class="filter-btn" onclick="filterCat('ent',this)">Entertainment</button>
+    <button class="filter-btn" onclick="filterCat('gaming',this)">Gaming</button>
+    <button class="filter-btn" onclick="filterCat('qsr',this)">QSR</button>
+  </div>
+  <div class="grid" id="grid">
+
+    <!-- PEPSICO -->
+    <div class="card" data-cat="cpg">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#004B93,#0066cc)">P</div>
+        <div><div class="co-name">PepsiCo</div><div class="co-meta"><span class="badge b-cpg">CPG</span> pepsico.com</div></div>
+        <div class="slack-tag">#pepsi-co-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Pepsi</span><span class="sub-tag">Doritos</span><span class="sub-tag">Lay's</span><span class="sub-tag">Mountain Dew</span><span class="sub-tag">Gatorade</span><span class="sub-tag">Quaker</span><span class="sub-tag">Tropicana</span><span class="sub-tag">Poppi</span><span class="sub-tag">Frito-Lay</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'PepsiCo CMO VP Marketing', 'PepsiCo Doritos Gatorade Mountain Dew')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+PepsiCo" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â PepsiCo Global</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Marketing+Officer+PepsiCo+Foods" target="_blank"><span class="emoji">ð</span><span class="role">Chief Marketing Officer â PepsiCo Foods</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">SVP / VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=SVP+Marketing+PepsiCo" target="_blank"><span class="emoji">ð£</span><span class="role">SVP Marketing â PepsiCo</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Doritos+PepsiCo" target="_blank"><span class="emoji">ð½</span><span class="role">VP Marketing â Doritos</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Brand+Mountain+Dew" target="_blank"><span class="emoji">ð¢</span><span class="role">VP Brand â Mountain Dew</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Quaker+Oats+PepsiCo" target="_blank"><span class="emoji">ð¥£</span><span class="role">VP Marketing â Quaker Oats</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Frito-Lay" target="_blank"><span class="emoji">ð¥¨</span><span class="role">VP Marketing â Frito-Lay</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+of+Marketing+Gatorade" target="_blank"><span class="emoji">â¡</span><span class="role">Head of Marketing â Gatorade</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Pepsi" target="_blank"><span class="emoji">ð</span><span class="role">Global Marketing Director â Pepsi</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Brand+Marketing+Lays" target="_blank"><span class="emoji">ð¥</span><span class="role">Senior Director Brand Marketing â Lay's</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Tropicana" target="_blank"><span class="emoji">ð</span><span class="role">VP Marketing â Tropicana</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Marketing+Director+Poppi+PepsiCo" target="_blank"><span class="emoji">ð«§</span><span class="role">Marketing Director â Poppi</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- AMAZON -->
+    <div class="card" data-cat="tech">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#FF9900,#FF6600)">A</div>
+        <div><div class="co-name">Amazon</div><div class="co-meta"><span class="badge b-tech">Tech</span> amazon.com</div></div>
+        <div class="slack-tag">#amazon-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Prime Video</span><span class="sub-tag">Twitch</span><span class="sub-tag">Audible</span><span class="sub-tag">Amazon Fresh</span><span class="sub-tag">Whole Foods</span><span class="sub-tag">MGM+</span><span class="sub-tag">Ring</span><span class="sub-tag">Alexa</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Amazon CMO VP Marketing', 'Amazon Prime Video Twitch Audible')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Amazon" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Amazon</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Marketing+Officer+Amazon+Advertising" target="_blank"><span class="emoji">ð</span><span class="role">CMO â Amazon Advertising</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">VP Level by Sub-Brand</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Prime+Video" target="_blank"><span class="emoji">ð¬</span><span class="role">VP Marketing â Prime Video</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Twitch" target="_blank"><span class="emoji">ð®</span><span class="role">VP Marketing â Twitch</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Audible" target="_blank"><span class="emoji">ð§</span><span class="role">VP Marketing â Audible</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Brand+Marketing+Whole+Foods" target="_blank"><span class="emoji">ð¿</span><span class="role">VP Brand â Whole Foods</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+MGM+Plus+Amazon" target="_blank"><span class="emoji">ð¦</span><span class="role">VP Marketing â MGM+</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Amazon+Fresh+Grocery" target="_blank"><span class="emoji">ð</span><span class="role">Head of Marketing â Amazon Fresh</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Amazon+Ads" target="_blank"><span class="emoji">ð±</span><span class="role">Global Marketing Director â Amazon Ads</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Brand+Marketing+Alexa" target="_blank"><span class="emoji">ð</span><span class="role">Senior Director â Alexa Brand Marketing</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Ring+Amazon" target="_blank"><span class="emoji">ð</span><span class="role">VP Marketing â Ring</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNILEVER -->
+    <div class="card" data-cat="cpg">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#1F3C88,#2655a8)">U</div>
+        <div><div class="co-name">Unilever</div><div class="co-meta"><span class="badge b-cpg">CPG</span> unilever.com</div></div>
+        <div class="slack-tag">#unilever-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Dove</span><span class="sub-tag">Lynx / Axe</span><span class="sub-tag">Ben &amp; Jerry's</span><span class="sub-tag">Hellmann's</span><span class="sub-tag">Marmite</span><span class="sub-tag">Sure / Degree</span><span class="sub-tag">TRESemmÃ©</span><span class="sub-tag">Persil</span><span class="sub-tag">Simple</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Unilever CMO VP Marketing', 'Unilever Dove Axe Hellmanns')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Unilever+Global" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Unilever Global</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Brand+Officer+Unilever" target="_blank"><span class="emoji">ð</span><span class="role">Chief Brand Officer â Unilever</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">SVP / VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=SVP+Marketing+Unilever" target="_blank"><span class="emoji">ð£</span><span class="role">SVP Marketing â Unilever</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Dove+Unilever" target="_blank"><span class="emoji">ðï¸</span><span class="role">VP Marketing â Dove</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Brand+Ben+Jerrys+Unilever" target="_blank"><span class="emoji">ð¦</span><span class="role">VP Brand â Ben &amp; Jerry's</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Hellmanns+Unilever" target="_blank"><span class="emoji">ð¥ª</span><span class="role">VP Marketing â Hellmann's</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Axe+Lynx+Unilever" target="_blank"><span class="emoji">ð¨</span><span class="role">Head of Marketing â Axe / Lynx</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Sure+Degree+Unilever" target="_blank"><span class="emoji">ðª</span><span class="role">Global Marketing Director â Sure / Degree</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Marketing+TRESemme" target="_blank"><span class="emoji">ð</span><span class="role">Senior Director Marketing â TRESemmÃ©</span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Persil+Unilever" target="_blank"><span class="emoji">ð§º</span><span class="role">VP Marketing â Persil</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Marmite+Unilever" target="_blank"><span class="emoji">ð«</span><span class="role">Head of Marketing â Marmite</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Marketing+Director+Simple+Skincare+Unilever" target="_blank"><span class="emoji">ð§´</span><span class="role">Marketing Director â Simple Skincare</span><span class="arr">â</span></a>
+        </div>
+        <div class="tip">ð¡ Unilever has 400+ brands â massive prospecting opportunity</div>
+      </div>
+    </div>
+
+    <!-- META -->
+    <div class="card" data-cat="tech">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#0668E1,#0090ff)">M</div>
+        <div><div class="co-name">Meta</div><div class="co-meta"><span class="badge b-tech">Tech</span> meta.com</div></div>
+        <div class="slack-tag">#meta-account-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Facebook</span><span class="sub-tag">Instagram</span><span class="sub-tag">WhatsApp</span><span class="sub-tag">Threads</span><span class="sub-tag">Meta Quest</span><span class="sub-tag">Reality Labs</span><span class="sub-tag">Meta AI</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Meta CMO VP Marketing Instagram Facebook', 'Meta Platforms Instagram WhatsApp')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Meta+Platforms" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Meta Platforms</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Brand+Officer+Meta" target="_blank"><span class="emoji">ð</span><span class="role">Chief Brand Officer â Meta</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Meta+Consumer" target="_blank"><span class="emoji">ð£</span><span class="role">VP Marketing â Meta Consumer</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Meta+Quest+VR" target="_blank"><span class="emoji">ð¥½</span><span class="role">VP Marketing â Meta Quest / VR</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Reality+Labs+Meta" target="_blank"><span class="emoji">ð¬</span><span class="role">VP Marketing â Reality Labs</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+of+Marketing+Instagram" target="_blank"><span class="emoji">ð¸</span><span class="role">Head of Marketing â Instagram</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+WhatsApp+Meta" target="_blank"><span class="emoji">ð¬</span><span class="role">Head of Marketing â WhatsApp</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Threads+Meta" target="_blank"><span class="emoji">ð§µ</span><span class="role">Global Marketing Director â Threads</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Brand+Marketing+Facebook" target="_blank"><span class="emoji">ð</span><span class="role">Senior Director Brand Marketing â Facebook</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Meta+AI+Products" target="_blank"><span class="emoji">ð¤</span><span class="role">Head of Marketing â Meta AI</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- EPIC GAMES -->
+    <div class="card" data-cat="gaming">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#2D0065,#6B00F5)">E</div>
+        <div><div class="co-name">Epic Games / Fortnite</div><div class="co-meta"><span class="badge b-gaming">Gaming</span> epicgames.com</div></div>
+        <div class="slack-tag">#epicgames-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Fortnite</span><span class="sub-tag">Rocket League</span><span class="sub-tag">Fall Guys</span><span class="sub-tag">Epic Games Store</span><span class="sub-tag">Unreal Engine</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Epic Games CMO VP Marketing Fortnite', 'Epic Games Fortnite Rocket League')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite / VP</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Epic+Games" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Epic Games</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Epic+Games" target="_blank"><span class="emoji">â¡</span><span class="role">VP Marketing â Epic Games</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=SVP+Brand+Marketing+Epic+Games" target="_blank"><span class="emoji">ð£</span><span class="role">SVP Brand Marketing â Epic Games</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Brand+Rocket+League+Epic" target="_blank"><span class="emoji">ð</span><span class="role">VP Brand â Rocket League</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Fortnite+Epic" target="_blank"><span class="emoji">ð®</span><span class="role">Head of Marketing â Fortnite</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Epic+Games" target="_blank"><span class="emoji">ð</span><span class="role">Global Marketing Director â Epic</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Marketing+Partnerships+Epic" target="_blank"><span class="emoji">ð¤</span><span class="role">Senior Director Marketing Partnerships</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Epic+Games+Store" target="_blank"><span class="emoji">ðª</span><span class="role">Head of Marketing â Epic Games Store</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Marketing+Director+Fall+Guys+Epic" target="_blank"><span class="emoji">ð¡</span><span class="role">Marketing Director â Fall Guys</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNIVERSAL -->
+    <div class="card" data-cat="ent">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#1a1a2e,#2e2e5e)">ð</div>
+        <div><div class="co-name">Universal Pictures</div><div class="co-meta"><span class="badge b-ent">Entertainment</span></div></div>
+        <div class="slack-tag">#universal-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Universal Pictures</span><span class="sub-tag">Focus Features</span><span class="sub-tag">DreamWorks</span><span class="sub-tag">Peacock</span><span class="sub-tag">Illumination</span><span class="sub-tag">Universal Music</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Universal Pictures CMO VP Marketing NBCUniversal', 'Universal Pictures Peacock DreamWorks')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Universal+Pictures" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Universal Pictures</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Marketing+Officer+NBCUniversal" target="_blank"><span class="emoji">ð</span><span class="role">CMO â NBCUniversal</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">SVP / VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=SVP+Marketing+Universal+Filmed+Entertainment" target="_blank"><span class="emoji">ð¬</span><span class="role">SVP Marketing â Universal Filmed Entertainment</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Focus+Features" target="_blank"><span class="emoji">ð­</span><span class="role">VP Marketing â Focus Features</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+DreamWorks" target="_blank"><span class="emoji">â¨</span><span class="role">VP Marketing â DreamWorks</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Peacock+NBC" target="_blank"><span class="emoji">ðº</span><span class="role">VP Marketing â Peacock</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Universal+International+Pictures" target="_blank"><span class="emoji">ð</span><span class="role">Head Marketing â Universal International</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Marketing+Illumination+Universal" target="_blank"><span class="emoji">ð¡</span><span class="role">Senior Director â Illumination</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Universal+Music+Group" target="_blank"><span class="emoji">ðµ</span><span class="role">Global Marketing Director â Universal Music</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- GENERAL MILLS -->
+    <div class="card" data-cat="cpg">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#C0392B,#e74c3c)">G</div>
+        <div><div class="co-name">General Mills</div><div class="co-meta"><span class="badge b-cpg">CPG</span> generalmills.com</div></div>
+        <div class="slack-tag">#general-mills-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Pillsbury</span><span class="sub-tag">Cheerios</span><span class="sub-tag">Nature Valley</span><span class="sub-tag">Old El Paso</span><span class="sub-tag">Betty Crocker</span><span class="sub-tag">Yoplait</span><span class="sub-tag">HÃ¤agen-Dazs</span><span class="sub-tag">Lucky Charms</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'General Mills CMO VP Marketing', 'General Mills Pillsbury Cheerios Haagen-Dazs')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+General+Mills" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â General Mills</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Brand+Officer+General+Mills" target="_blank"><span class="emoji">ð</span><span class="role">Chief Brand Officer â General Mills</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">SVP / VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=SVP+Marketing+General+Mills" target="_blank"><span class="emoji">ð£</span><span class="role">SVP Marketing â General Mills</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Pillsbury+General+Mills" target="_blank"><span class="emoji">ð¥</span><span class="role">VP Marketing â Pillsbury</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Brand+Haagen-Dazs+General+Mills" target="_blank"><span class="emoji">ð¨</span><span class="role">VP Brand â HÃ¤agen-Dazs</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Nature+Valley+General+Mills" target="_blank"><span class="emoji">ð¾</span><span class="role">VP Marketing â Nature Valley</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Old+El+Paso" target="_blank"><span class="emoji">ð®</span><span class="role">Head of Marketing â Old El Paso</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Betty+Crocker" target="_blank"><span class="emoji">ð</span><span class="role">Global Marketing Director â Betty Crocker</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Marketing+Cheerios" target="_blank"><span class="emoji">ð¥£</span><span class="role">Senior Director Marketing â Cheerios</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Lucky+Charms+General+Mills" target="_blank"><span class="emoji">ð</span><span class="role">Head of Marketing â Lucky Charms</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RBI BRANDS -->
+    <div class="card" data-cat="qsr">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#D62300,#ff5500)">R</div>
+        <div><div class="co-name">RBI Brands</div><div class="co-meta"><span class="badge b-qsr">QSR</span> rbi.com</div></div>
+        <div class="slack-tag">#rbi-brands-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Burger King</span><span class="sub-tag">Tim Hortons</span><span class="sub-tag">Popeyes</span><span class="sub-tag">Firehouse Subs</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Burger King Tim Hortons Popeyes CMO VP Marketing RBI', 'Restaurant Brands International Burger King')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Restaurant+Brands+International" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Restaurant Brands International</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Marketing+Officer+Burger+King+Global" target="_blank"><span class="emoji">ð</span><span class="role">CMO â Burger King Global</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">VP Level by Brand</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Burger+King+North+America" target="_blank"><span class="emoji">ð</span><span class="role">VP Marketing â Burger King North America</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Tim+Hortons" target="_blank"><span class="emoji">â</span><span class="role">VP Marketing â Tim Hortons</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Popeyes" target="_blank"><span class="emoji">ð</span><span class="role">VP Marketing â Popeyes</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Brand+Marketing+Burger+King+UK" target="_blank"><span class="emoji">ð¬ð§</span><span class="role">Head of Brand â Burger King UK</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Tim+Hortons" target="_blank"><span class="emoji">ð</span><span class="role">Global Marketing Director â Tim Hortons</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Firehouse+Subs+RBI" target="_blank"><span class="emoji">ð</span><span class="role">Head of Marketing â Firehouse Subs</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SKY -->
+    <div class="card" data-cat="ent">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#00013A,#0100a0)">S</div>
+        <div><div class="co-name">Sky</div><div class="co-meta"><span class="badge b-ent">Entertainment</span> sky.com</div></div>
+        <div class="slack-tag">#sky-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Sky Sports</span><span class="sub-tag">Sky News</span><span class="sub-tag">Sky Cinema</span><span class="sub-tag">Sky Kids</span><span class="sub-tag">NOW TV</span><span class="sub-tag">Sky Studios</span><span class="sub-tag">Sky Atlantic</span><span class="sub-tag">Sky Glass</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Sky UK CMO VP Marketing Comcast', 'Sky Sports Sky Studios NOW TV Sky Glass')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Sky+UK" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Sky UK</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Marketing+Officer+Sky+Comcast" target="_blank"><span class="emoji">ð</span><span class="role">CMO â Sky / Comcast</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">SVP / VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=SVP+Marketing+Sky+UK" target="_blank"><span class="emoji">ð£</span><span class="role">SVP Marketing â Sky UK</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Sky+Sports" target="_blank"><span class="emoji">â½</span><span class="role">VP Marketing â Sky Sports</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Brand+Sky+Studios" target="_blank"><span class="emoji">ð¬</span><span class="role">VP Brand â Sky Studios</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+NOW+TV+Sky" target="_blank"><span class="emoji">ðº</span><span class="role">Head of Marketing â NOW TV</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Sky+Broadband+Mobile" target="_blank"><span class="emoji">ð¡</span><span class="role">Head of Marketing â Sky Broadband</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Brand+Marketing+Sky+Sports" target="_blank"><span class="emoji">ð</span><span class="role">Senior Director â Sky Sports</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Marketing+Director+Sky+Kids" target="_blank"><span class="emoji">ð§</span><span class="role">Marketing Director â Sky Kids</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Sky+Glass+Devices" target="_blank"><span class="emoji">ð¥ï¸</span><span class="role">Head of Marketing â Sky Glass</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Sky+International" target="_blank"><span class="emoji">ð</span><span class="role">Global Marketing Director â Sky International</span><span class="arr">â</span></a>
+        </div>
+        <div class="tip">ð¡ UK-based â great for UK seller outreach. Sky HQ is Osterley, London.</div>
+      </div>
+    </div>
+
+    <!-- LEGO -->
+    <div class="card" data-cat="cpg">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#E3000B,#ff1a1a)">ð§±</div>
+        <div><div class="co-name">LEGO</div><div class="co-meta"><span class="badge b-cpg">CPG / Toys</span> lego.com</div></div>
+        <div class="slack-tag">#lego-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">LEGO Education</span><span class="sub-tag">LEGO Technic</span><span class="sub-tag">LEGO Star Wars</span><span class="sub-tag">LEGO City</span><span class="sub-tag">LEGO Ideas</span><span class="sub-tag">LEGO Ninjago</span><span class="sub-tag">LEGO Icons</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'LEGO Group CMO VP Marketing', 'LEGO Group marketing campaigns')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+LEGO+Group" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â The LEGO Group</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Marketing+Officer+LEGO" target="_blank"><span class="emoji">ð</span><span class="role">Chief Marketing Officer â LEGO</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">SVP / VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=SVP+VP+Marketing+LEGO" target="_blank"><span class="emoji">ð£</span><span class="role">SVP / VP Marketing â LEGO</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Brand+Marketing+LEGO+Americas" target="_blank"><span class="emoji">ð</span><span class="role">VP Brand Marketing â LEGO Americas</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+LEGO+Europe" target="_blank"><span class="emoji">ð</span><span class="role">VP Marketing â LEGO Europe</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+of+Marketing+LEGO+Education" target="_blank"><span class="emoji">ð</span><span class="role">Head of Marketing â LEGO Education</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+LEGO" target="_blank"><span class="emoji">ð</span><span class="role">Global Marketing Director â LEGO</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Marketing+LEGO+Star+Wars" target="_blank"><span class="emoji">â­</span><span class="role">Senior Director â LEGO Star Wars</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Marketing+Director+LEGO+Technic" target="_blank"><span class="emoji">âï¸</span><span class="role">Marketing Director â LEGO Technic</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Digital+Marketing+LEGO" target="_blank"><span class="emoji">ð»</span><span class="role">Head of Digital Marketing â LEGO</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBWAY -->
+    <div class="card" data-cat="qsr">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#009B48,#00c45e)">S</div>
+        <div><div class="co-name">Subway</div><div class="co-meta"><span class="badge b-qsr">QSR</span> subway.com</div></div>
+        <div class="slack-tag">#subway-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Subway US</span><span class="sub-tag">Subway UK</span><span class="sub-tag">Subway EMEA</span><span class="sub-tag">Subway Digital</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Subway CMO VP Marketing', 'Subway restaurant marketing campaigns')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Subway+Restaurants" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Subway</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Marketing+Officer+Subway+Global" target="_blank"><span class="emoji">ð</span><span class="role">CMO â Subway Global</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">SVP / VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=SVP+Marketing+Subway" target="_blank"><span class="emoji">ð£</span><span class="role">SVP Marketing â Subway</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Subway+North+America" target="_blank"><span class="emoji">ðºð¸</span><span class="role">VP Marketing â Subway North America</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Head+Marketing+Subway+UK+Europe" target="_blank"><span class="emoji">ð¬ð§</span><span class="role">VP / Head Marketing â Subway UK / EMEA</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Brand+Marketing+Subway+Digital" target="_blank"><span class="emoji">ð±</span><span class="role">Head of Brand â Subway Digital</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Subway" target="_blank"><span class="emoji">ð</span><span class="role">Global Marketing Director â Subway</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Brand+Marketing+Subway" target="_blank"><span class="emoji">ð¥</span><span class="role">Senior Director Brand Marketing â Subway</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Subway+Asia+Pacific" target="_blank"><span class="emoji">ð</span><span class="role">Head of Marketing â Subway Asia Pacific</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGITECH -->
+    <div class="card" data-cat="tech gaming">
+      <div class="card-top">
+        <div class="logo" style="background:linear-gradient(135deg,#00B8FC,#0077cc)">L</div>
+        <div><div class="co-name">Logitech</div><div class="co-meta"><span class="badge b-tech">Tech</span><span class="badge b-gaming">Gaming</span></div></div>
+        <div class="slack-tag">#logitech-pod</div>
+      </div>
+      <div class="card-body">
+        <div class="sub-brands"><span class="sub-tag">Logitech G</span><span class="sub-tag">Blue Microphones</span><span class="sub-tag">Astro Gaming</span><span class="sub-tag">Ultimate Ears</span><span class="sub-tag">Jaybird</span><span class="sub-tag">Streamlabs</span></div>
+        <button class="activity-btn" onclick="fetchActivity(this, 'Logitech CMO VP Marketing', 'Logitech G gaming peripherals marketing')"><span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity</button>
+        <div class="activity-panel"></div>
+        <div class="section-label">C-Suite</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=CMO+Logitech" target="_blank"><span class="emoji">ð¼</span><span class="role">CMO â Logitech</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Chief+Marketing+Officer+Logitech+Global" target="_blank"><span class="emoji">ð</span><span class="role">CMO â Logitech Global</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">VP Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Logitech+Global" target="_blank"><span class="emoji">ð£</span><span class="role">VP Marketing â Logitech Global</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Brand+Astro+Gaming+Logitech" target="_blank"><span class="emoji">ð§</span><span class="role">VP Brand â Astro Gaming</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=VP+Marketing+Logitech+B2B+Video+Collaboration" target="_blank"><span class="emoji">ð»</span><span class="role">VP Marketing â Logitech B2B / Video</span><span class="arr">â</span></a>
+        </div>
+        <div class="section-label">Head / Director Level</div>
+        <div class="links">
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Logitech+G+Gaming" target="_blank"><span class="emoji">ð®</span><span class="role">Head of Marketing â Logitech G (Gaming)</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Ultimate+Ears+Logitech" target="_blank"><span class="emoji">ð</span><span class="role">Head of Marketing â Ultimate Ears</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Global+Marketing+Director+Logitech" target="_blank"><span class="emoji">ð</span><span class="role">Global Marketing Director â Logitech</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Senior+Director+Brand+Marketing+Logitech" target="_blank"><span class="emoji">ð±ï¸</span><span class="role">Senior Director Brand Marketing â Logitech</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Marketing+Director+Blue+Microphones+Logitech" target="_blank"><span class="emoji">ðï¸</span><span class="role">Marketing Director â Blue Microphones</span><span class="arr">â</span></a>
+          <a class="li-link" href="https://www.linkedin.com/search/results/people/?keywords=Head+Marketing+Jaybird+Logitech" target="_blank"><span class="emoji">ðµ</span><span class="role">Head of Marketing â Jaybird</span><span class="arr">â</span></a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:28px;background:#13131f;border:1px solid #1e1e2e;border-radius:12px;padding:20px;">
+    <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;">ð¯ Prospecting Tips</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;font-size:12px;color:#555;line-height:1.6;">
+      <div style="background:#0d0d1a;border-radius:8px;padding:12px;border-left:3px solid #0077b5"><strong style="color:#5bb8e8;display:block;margin-bottom:4px">2nd Degree First</strong>Filter by 2nd connections â massively warmer outreach rate</div>
+      <div style="background:#0d0d1a;border-radius:8px;padding:12px;border-left:3px solid #a78bfa"><strong style="color:#c084fc;display:block;margin-bottom:4px">Also Try These Titles</strong>"Global Marketing Director", "VP of Brand", "Head of Consumer Marketing", "Senior Director Marketing"</div>
+      <div style="background:#0d0d1a;border-radius:8px;padding:12px;border-left:3px solid #4caf50"><strong style="color:#81c784;display:block;margin-bottom:4px">Recently Promoted</strong>Filter "Past 3 months" â new VPs are easiest to connect with, won't be in HubSpot yet</div>
+      <div style="background:#0d0d1a;border-radius:8px;padding:12px;border-left:3px solid #fb923c"><strong style="color:#fba768;display:block;margin-bottom:4px">Sub-Brand = New Budget</strong>Parent brand in HubSpot? Go straight to sub-brand VPs â separate budgets, separate buyers</div>
+    </div>
+  </div>
+  <footer>Pubity Group Â· LinkedIn Senior Contact Finder Â· Built from Slack Pod Channels Â· April 2026</footer>
+</div>
+
+<script>
+let activeCat = 'all';
+function filterCat(cat, btn) {
+  activeCat = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('.card').forEach(card => {
+    const catOk = activeCat === 'all' || card.dataset.cat.includes(activeCat);
+    const textOk = !q || card.innerText.toLowerCase().includes(q);
+    card.classList.toggle('hidden', !(catOk && textOk));
+  });
+}
+
+async function fetchActivity(btn, person, company) {
+  const panel = btn.nextElementSibling;
+
+  if (panel.classList.contains('show')) {
+    panel.classList.remove('show');
+    btn.innerHTML = '<span class="activity-pulse"></span>â¡ Get Recent LinkedIn Activity';
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.innerHTML = '<span class="activity-pulse"></span>ð Searching LinkedIn & news...';
+  panel.innerHTML = '<p class="loading-text">Fetching recent activity from LinkedIn and news sources...</p>';
+  panel.classList.add('show');
+
+  try {
+    const prompt = `Search LinkedIn and the web for the most recent activity (last 3-6 months) from senior marketing leaders (CMO, VP Marketing, SVP, Head of Marketing) at ${company}. 
+
+I need:
+1. What they have been posting about on LinkedIn recently
+2. Any recent campaigns, initiatives or brand news they've been involved in  
+3. Their hot topics / themes they discuss (useful for outreach conversation starters)
+4. Any speaking appearances, awards or industry recognition
+
+Focus on people with titles like: ${person}
+
+Format your response as 4-5 concise bullet points. Each bullet: Name (if known) + Title + what they've been doing/posting. Keep each bullet to 1-2 sentences. Make it practical for cold outreach purposes.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+
+    // Extract text from response blocks
+    const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
+
+    if (!textBlocks.trim()) {
+      panel.innerHTML = '<p class="error">No recent activity found. Try searching LinkedIn directly using the links below.</p>';
+      return;
+    }
+
+    // Parse bullets and render nicely
+    const lines = textBlocks.split('\n').filter(l => l.trim().length > 10);
+    let html = '<h4>ð Recent LinkedIn &amp; Industry Activity</h4>';
+
+    lines.forEach(line => {
+      const clean = line.replace(/^[-â¢*\d.]+\s*/, '').trim();
+      if (clean.length > 20) {
+        // Try to extract name/title bolding
+        const colonIdx = clean.indexOf(':');
+        if (colonIdx > 0 && colonIdx < 50) {
+          html += `<div class="activity-item"><strong>${clean.substring(0, colonIdx)}</strong>${clean.substring(colonIdx + 1)}</div>`;
+        } else {
+          html += `<div class="activity-item">${clean}</div>`;
+        }
+      }
+    });
+
+    html += '<div style="margin-top:10px;font-size:10px;color:#335;border-top:1px solid #0d3655;padding-top:8px;">â¡ Powered by live web search Â· Use as outreach conversation starters</div>';
+    panel.innerHTML = html;
+
+  } catch (err) {
+    panel.innerHTML = `<p class="error">Couldn't load activity right now. Try the LinkedIn search links below instead.</p>`;
+  } finally {
+    btn.classList.remove('loading');
+    btn.innerHTML = '<span class="activity-pulse"></span>â¡ Refresh Activity';
+  }
+}
+</script>
+</body>
+</html>
