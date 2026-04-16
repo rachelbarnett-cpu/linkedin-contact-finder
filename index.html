@@ -3,90 +3,550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn Contact Finder - HubSpot Gaps Only - Pubity Group</title>
+    <title>LinkedIn Senior Contact Finder &ndash; HubSpot Gap Search - Pubity Group</title>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a0f; color: #e0e0e8; line-height: 1.6; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        header { margin-bottom: 30px; border-bottom: 1px solid #1e1e2e; padding-bottom: 20px; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header-left h1 { font-size: 32px; font-weight: 700; margin-bottom: 5px; color: #ffffff; }
-        .header-left p { font-size: 14px; color: #888; }
-        .header-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-        .pill { background: #13131f; border: 1px solid #1e1e2e; padding: 6px 12px; border-radius: 16px; font-size: 12px; color: #aaa; }
-        .pill.active { background: #0077b5; color: #fff; border-color: #0077b5; }
-        .header-actions { display: flex; gap: 10px; }
-        .btn-action { background: #13131f; border: 1px solid #1e1e2e; color: #e0e0e8; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
-        .btn-action:hover { background: #1e1e2e; border-color: #0077b5; }
-        .stats-bar { background: #13131f; border: 1px solid #1e1e2e; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .stat-item { text-align: center; }
-        .stat-number { font-size: 28px; font-weight: 700; color: #0099d4; margin-bottom: 5px; }
-        .stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-        .progress-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #1e1e2e; }
-        .progress-label { font-size: 13px; color: #aaa; margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .progress-bar { background: #1e1e2e; height: 8px; border-radius: 4px; overflow: hidden; }
-        .progress-fill { background: linear-gradient(90deg, #0077b5, #00a0dc); height: 100%; border-radius: 4px; transition: width 0.3s; }
-        .filters { display: flex; gap: 8px; margin-bottom: 25px; flex-wrap: wrap; }
-        .filter-btn { background: #13131f; border: 1px solid #1e1e2e; color: #aaa; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
-        .filter-btn:hover { border-color: #0077b5; }
-        .filter-btn.active { background: #0077b5; border-color: #0077b5; color: #fff; }
-        .search-box { margin-bottom: 25px; }
-        .search-box input { width: 100%; background: #13131f; border: 1px solid #1e1e2e; color: #e0e0e8; padding: 12px 16px; border-radius: 6px; font-size: 14px; transition: border-color 0.2s; }
-        .search-box input:focus { outline: none; border-color: #0077b5; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .card { background: #13131f; border: 1px solid #1e1e2e; border-radius: 8px; padding: 20px; transition: all 0.2s; }
-        .card:hover { border-color: #0077b5; box-shadow: 0 0 20px rgba(0, 119, 181, 0.1); }
-        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
-        .card-logo { width: 48px; height: 48px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: #fff; }
-        .card-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; color: #fff; }
-        .card-info p { font-size: 12px; color: #888; }
-        .card-badges { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 500; }
-        .b-cpg { background: #0d2010; color: #4caf50; } .b-tech { background: #0d1a30; color: #4a9eff; } .b-ent { background: #1a0d20; color: #c084fc; }
-        .b-qsr { background: #1a1000; color: #fb923c; } .b-gaming { background: #100d20; color: #a78bfa; } .b-spirits { background: #1a0d10; color: #e88a6a; }
-        .b-hospitality { background: #0d1a1a; color: #4dd0c8; } .b-travel { background: #0d1520; color: #64b5f6; } .b-beauty { background: #1a0d1a; color: #f48fb1; }
-        .b-retail { background: #1a1a0d; color: #dce775; } .b-betting { background: #0d1a10; color: #66bb6a; }
-        .sub-brands { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #1e1e2e; }
-        .sub-brand { background: #1e1e2e; padding: 3px 8px; border-radius: 3px; font-size: 11px; color: #aaa; }
-        .slack-channel { display: inline-block; background: #1a0d20; color: #c084fc; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-bottom: 12px; }
-        .contacted-count { font-size: 12px; color: #4caf50; font-weight: 600; margin-bottom: 12px; }
-        .btn-activity { width: 100%; background: #0077b5; border: 1px solid #0077b5; color: #fff; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; margin-bottom: 15px; transition: all 0.2s; }
-        .btn-activity:hover { background: #005a8a; border-color: #005a8a; }
-        .btn-activity.loading { background: #1e1e2e; color: #888; cursor: not-allowed; }
-        .section { margin-bottom: 15px; }
-        .section-title { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; font-weight: 600; }
-        .links-list { display: flex; flex-direction: column; gap: 8px; }
-        .link-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #1e1e2e; border-radius: 4px; transition: all 0.2s; }
-        .link-item.contacted { background: rgba(76, 175, 80, 0.1); }
-        .link-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #4caf50; }
-        .link-item a { flex: 1; color: #0099d4; text-decoration: none; font-size: 13px; word-break: break-word; }
-        .link-item a:hover { text-decoration: underline; }
-        .link-item.contacted a { text-decoration: line-through; color: #4caf50; }
-        .activity-panel { background: #13131f; border: 1px solid #1e1e2e; border-radius: 6px; padding: 12px; margin-top: 10px; max-height: 300px; overflow-y: auto; display: none; }
-        .activity-panel.active { display: block; }
-        .activity-item { padding: 10px; background: #1e1e2e; border-radius: 4px; margin-bottom: 8px; font-size: 12px; color: #aaa; }
-        .activity-loading { color: #0077b5; text-align: center; padding: 20px 0; }
-        .activity-error { color: #ff6b6b; padding: 10px; background: rgba(255, 107, 107, 0.1); border-radius: 4px; }
-        footer { text-align: center; padding: 30px 20px; color: #666; font-size: 12px; border-top: 1px solid #1e1e2e; margin-top: 40px; }
-        .prospecting-tips { background: #13131f; border: 1px solid #1e1e2e; border-radius: 8px; padding: 20px; margin-bottom: 30px; }
-        .prospecting-tips h3 { color: #fff; margin-bottom: 12px; font-size: 14px; }
-        .prospecting-tips p { color: #aaa; font-size: 13px; margin-bottom: 8px; }
-        .prospecting-tips ul { list-style: none; margin-bottom: 12px; }
-        .prospecting-tips li { color: #aaa; font-size: 13px; margin-bottom: 6px; padding-left: 20px; position: relative; }
-        .prospecting-tips li:before { content: "\2022"; position: absolute; left: 0; color: #0077b5; }
-        .zoominfo-note { background: rgba(0, 119, 181, 0.05); border-left: 3px solid #0077b5; padding: 10px; margin-top: 12px; font-size: 12px; color: #aaa; }
-        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2, 1fr); } .header-top { flex-direction: column; align-items: flex-start; } .header-actions { width: 100%; margin-top: 15px; } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e8;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Section */
+        header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #1e1e2e;
+            padding-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-left h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .header-left p {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .header-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            background: #13131f;
+            border: 1px solid #1e1e2e;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .pill.active {
+            background: #0077b5;
+            color: #fff;
+            border-color: #0077b5;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            background: #13131f;
+            border: 1px solid #1e1e2e;
+            color: #e0e0e8;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #1e1e2e;
+            border-color: #0077b5;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            background: #13131f;
+            border: 1px solid #1e1e2e;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0099d4;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #1e1e2e;
+        }
+
+        .progress-label {
+            font-size: 13px;
+            color: #aaa;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            background: #1e1e2e;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #0077b5, #00a0dc);
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: #13131f;
+            border: 1px solid #1e1e2e;
+            color: #aaa;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: #0077b5;
+        }
+
+        .filter-btn.active {
+            background: #0077b5;
+            border-color: #0077b5;
+            color: #fff;
+        }
+
+        /* Search */
+        .search-box {
+            margin-bottom: 25px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: #13131f;
+            border: 1px solid #1e1e2e;
+            color: #e0e0e8;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #0077b5;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: #13131f;
+            border: 1px solid #1e1e2e;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: #0077b5;
+            box-shadow: 0 0 20px rgba(0, 119, 181, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .card-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: #fff;
+        }
+
+        .card-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .card-info p {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .card-badges {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Badge Colors */
+        .b-cpg { background: #0d2010; color: #4caf50; }
+        .b-tech { background: #0d1a30; color: #4a9eff; }
+        .b-ent { background: #1a0d20; color: #c084fc; }
+        .b-qsr { background: #1a1000; color: #fb923c; }
+        .b-gaming { background: #100d20; color: #a78bfa; }
+        .b-spirits { background: #1a0d10; color: #e88a6a; }
+        .b-hospitality { background: #0d1a1a; color: #4dd0c8; }
+        .b-travel { background: #0d1520; color: #64b5f6; }
+        .b-beauty { background: #1a0d1a; color: #f48fb1; }
+        .b-retail { background: #1a1a0d; color: #dce775; }
+        .b-betting { background: #0d1a10; color: #66bb6a; }
+
+        .sub-brands {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1e1e2e;
+        }
+
+        .sub-brand {
+            background: #1e1e2e;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .slack-channel {
+            display: inline-block;
+            background: #1a0d20;
+            color: #c084fc;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .contacted-count {
+            font-size: 12px;
+            color: #4caf50;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .btn-activity {
+            width: 100%;
+            background: #0077b5;
+            border: 1px solid #0077b5;
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            transition: all 0.2s;
+        }
+
+        .btn-activity:hover {
+            background: #005a8a;
+            border-color: #005a8a;
+        }
+
+        .btn-activity.loading {
+            background: #1e1e2e;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .section {
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .link-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            background: #1e1e2e;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .link-item.contacted {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .link-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #4caf50;
+        }
+
+        .link-item a {
+            flex: 1;
+            color: #0099d4;
+            text-decoration: none;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .link-item a:hover {
+            text-decoration: underline;
+        }
+
+        .link-item.contacted a {
+            text-decoration: line-through;
+            color: #4caf50;
+        }
+
+        .link-role {
+            flex: 0 0 auto;
+            color: #aaa;
+            font-size: 12px;
+            max-width: 200px;
+            text-align: right;
+        }
+
+        .link-item.contacted .link-role {
+            text-decoration: line-through;
+            color: #4caf50;
+        }
+
+        /* Activity Panel */
+        .activity-panel {
+            background: #13131f;
+            border: 1px solid #1e1e2e;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .activity-panel.active {
+            display: block;
+        }
+
+        .activity-item {
+            padding: 10px;
+            background: #1e1e2e;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .activity-loading {
+            color: #0077b5;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .activity-error {
+            color: #ff6b6b;
+            padding: 10px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 4px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+            font-size: 12px;
+            border-top: 1px solid #1e1e2e;
+            margin-top: 40px;
+        }
+
+        .prospecting-tips {
+            background: #13131f;
+            border: 1px solid #1e1e2e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .prospecting-tips h3 {
+            color: #fff;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .prospecting-tips p {
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .prospecting-tips ul {
+            list-style: none;
+            margin-bottom: 12px;
+        }
+
+        .prospecting-tips li {
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 6px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .prospecting-tips li:before {
+            content: "\2022";
+            position: absolute;
+            left: 0;
+            color: #0077b5;
+        }
+
+        .zoominfo-note {
+            background: rgba(0, 119, 181, 0.05);
+            border-left: 3px solid #0077b5;
+            padding: 10px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .link-role {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <header>
             <div class="header-top">
                 <div class="header-left">
-                    <h1>LinkedIn Contact Finder - HubSpot Gaps</h1>
-                    <p>Pubity Group &bull; Only showing contacts NOT in HubSpot</p>
+                    <h1>LinkedIn Senior Contact Finder &ndash; HubSpot Gap Search</h1>
+                    <p>Pubity Group &bull; Sales Account Management</p>
                 </div>
                 <div class="header-actions">
                     <button class="btn-action" onclick="clearAllCheckboxes()">Clear All</button>
@@ -94,67 +554,222 @@
                 </div>
             </div>
             <div class="header-pills">
-                <div class="pill active">3 HubSpot Gap Companies</div>
-                <div class="pill">20+ Sub-Brands</div>
-                <div class="pill">3 Seniority Levels</div>
-                <div class="pill">25 LinkedIn Searches</div>
+                <div class="pill active">22 Pod + Strategy Clients</div>
+                <div class="pill">100+ Sub-Brands</div>
+                <div class="pill">5 Seniority Levels</div>
+                <div class="pill">300+ LinkedIn Searches</div>
             </div>
         </header>
+
+        <!-- Stats Bar -->
         <div class="stats-bar">
             <div class="stats-grid">
-                <div class="stat-item"><div class="stat-number">3</div><div class="stat-label">HubSpot Gap Companies</div></div>
-                <div class="stat-item"><div class="stat-number">19</div><div class="stat-label">Fully Covered in HubSpot</div></div>
-                <div class="stat-item"><div class="stat-number">25</div><div class="stat-label">Gap Searches</div></div>
-                <div class="stat-item"><div class="stat-number">1,740+</div><div class="stat-label">HubSpot Contacts</div></div>
+                <div class="stat-item">
+                    <div class="stat-number">22</div>
+                    <div class="stat-label">Pod + Strategy Clients</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">Sub-Brands</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Seniority Levels</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">300+</div>
+                    <div class="stat-label">LinkedIn Searches</div>
+                </div>
             </div>
             <div class="progress-section">
-                <div class="progress-label"><span>Overall Progress</span><span id="overall-count">0 / 0 Contacted</span></div>
-                <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%"></div></div>
+                <div class="progress-label">
+                    <span>Overall Progress</span>
+                    <span id="overall-count">0 / 0 Contacted</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
             </div>
         </div>
+
+        <!-- Filters -->
         <div class="filters">
-            <button class="filter-btn active" onclick="filterByCategory('all')">All Gap Companies</button>
+            <button class="filter-btn active" onclick="filterByCategory('all')">All</button>
             <button class="filter-btn" onclick="filterByCategory('cpg')">CPG/Food</button>
             <button class="filter-btn" onclick="filterByCategory('tech')">Tech</button>
             <button class="filter-btn" onclick="filterByCategory('entertainment')">Entertainment</button>
+            <button class="filter-btn" onclick="filterByCategory('gaming')">Gaming</button>
+            <button class="filter-btn" onclick="filterByCategory('qsr')">QSR</button>
+            <button class="filter-btn" onclick="filterByCategory('spirits')">Spirits</button>
+            <button class="filter-btn" onclick="filterByCategory('hospitality')">Hospitality</button>
+            <button class="filter-btn" onclick="filterByCategory('travel')">Travel</button>
+            <button class="filter-btn" onclick="filterByCategory('beauty')">Beauty</button>
+            <button class="filter-btn" onclick="filterByCategory('retail')">Retail</button>
+            <button class="filter-btn" onclick="filterByCategory('betting')">Betting</button>
         </div>
-        <div class="search-box"><input type="text" id="search-input" placeholder="Search by company name or keyword..." onkeyup="searchCompanies()"></div>
+
+        <!-- Search -->
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search by company name or keyword..." onkeyup="searchCompanies()">
+        </div>
+
+        <!-- Prospecting Tips -->
         <div class="prospecting-tips">
-            <h3>HubSpot Gap Analysis - Contacts NOT in CRM</h3>
-            <p>19 of 22 companies are fully covered in HubSpot (1,740+ contacts). The 3 companies below have gaps where HubSpot is thin on senior marketing roles.</p>
+            <h3>Prospecting Tips</h3>
             <ul>
-                <li><strong>Meta</strong> &ndash; 6 HubSpot contacts. Missing: Chief Brand Officer, VP Reality Labs, Head of Instagram/WhatsApp/Threads/Facebook/Meta AI</li>
-                <li><strong>Universal Pictures</strong> &ndash; 8 HubSpot contacts. Missing: CMO NBCUniversal, VP-level for Focus Features/DreamWorks/Peacock, Directors for Illumination/Universal Music</li>
-                <li><strong>General Mills</strong> &ndash; 2 HubSpot contacts. Missing: Nearly all senior roles (CMO, SVP, VP, Directors across all sub-brands)</li>
+                <li>Start with C-Suite contacts for strategic accounts</li>
+                <li>Reach out to 2-3 people per level to increase response rates</li>
+                <li>Check LinkedIn activity before outreach for recent engagement</li>
+                <li>Use connection request templates for similar role outreach</li>
+                <li>Follow up with VP/Director level for faster decision-making</li>
             </ul>
-            <div class="zoominfo-note">These are the only LinkedIn searches you need &ndash; everything else is already in HubSpot. Use ZoomInfo to enrich these 3 companies for verified emails and direct dials.</div>
+            <div class="zoominfo-note">
+                Strategy client contacts sourced from HubSpot CRM data. For deeper contact intelligence, connect ZoomInfo for verified emails, direct dials, and org charts.
+            </div>
         </div>
-        <div class="grid" id="companies-grid"></div>
+
+        <!-- Grid of Company Cards -->
+        <div class="grid" id="companies-grid">
+            <!-- Cards will be generated by JavaScript -->
+        </div>
     </div>
-    <footer>Pubity Group &middot; LinkedIn Senior Contact Finder &middot; HubSpot Gap Analysis &middot; 19/22 Companies Covered in CRM &middot; April 2026</footer>
+
+    <!-- Footer -->
+    <footer>
+        Pubity Group &middot; LinkedIn Senior Contact Finder &ndash; HubSpot Gap Search &middot; HubSpot Strategy Clients + Pod Channels &middot; April 2026
+    </footer>
+
     <script>
+        // Data structure for all companies
         const companies = [
             {
-                name: 'Meta', category: 'tech', categoryLabel: 'Tech', slackChannel: '#meta-pod', logo: 'M', logoColor: '#1877F2',
-                subBrands: ['Facebook', 'Instagram', 'WhatsApp', 'Threads', 'Meta Quest', 'Reality Labs'],
-                hubspotNote: 'HubSpot has 6 contacts (CMO, VP Consumer Marketing, VP Ads, VP Brand Experiences, Head Marketing Planning, Head Marketing Quest VR). Below are roles NOT in HubSpot.',
+                name: 'PepsiCo', category: 'cpg', categoryLabel: 'CPG',
+                slackChannel: '#pepsi-co-pod', logo: 'P', logoColor: '#FF6B35',
+                subBrands: ['Pepsi', 'Doritos', 'Lay\'s', 'Gatorade', 'Quaker Oats', 'Tropicana', 'Mountain Dew', 'Cheetos', 'Frito-Lay', 'Bubly', 'SodaStream', 'Rockstar Energy', 'Tostitos', 'Poppi'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 228 contacts already tracked',
                 contacts: {
-                    'C-Suite': [{ title: 'Chief Brand Officer Meta' }],
-                    'SVP/VP Level': [{ title: 'VP Marketing Reality Labs' }],
+                    'C-Suite': [
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'VP Marketing Doritos' },
+                        { title: 'VP Marketing Quaker Oats' },
+                        { title: 'VP Marketing Frito-Lay' },
+                        { title: 'VP Marketing Rockstar Energy' },
+                        { title: 'VP Marketing SodaStream' }
+                    ],
                     'Head/Director Level': [
-                        { title: 'Head Marketing Instagram' }, { title: 'Head Marketing WhatsApp' },
-                        { title: 'Global Marketing Director Threads' }, { title: 'Senior Director Brand Marketing Facebook' },
+                        { title: 'Senior Director Brand Lay\'s' },
+                        { title: 'Marketing Director Poppi' },
+                        { title: 'Head Marketing Tostitos' },
+                        { title: 'Senior Director Marketing Gatorade Digital' }
+                    ]
+                }
+            },
+            {
+                name: 'Amazon', category: 'tech', categoryLabel: 'Tech',
+                slackChannel: '#amazon-pod', logo: 'A', logoColor: '#FF9900',
+                subBrands: ['Amazon', 'Prime Video', 'Twitch', 'Audible', 'Whole Foods', 'Ring', 'MGM+', 'Amazon Fresh', 'Amazon Ads', 'Alexa'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 167 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'VP Marketing Prime Video' },
+                        { title: 'VP Marketing Twitch' },
+                        { title: 'VP Marketing Audible' },
+                        { title: 'VP Brand Whole Foods' },
+                        { title: 'VP Marketing MGM+' },
+                        { title: 'VP Marketing Ring' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Head Marketing Amazon Fresh' },
+                        { title: 'Global Marketing Director Amazon Ads' },
+                        { title: 'Senior Director Alexa Brand' }
+                    ]
+                }
+            },
+            {
+                name: 'Unilever', category: 'cpg', categoryLabel: 'CPG',
+                slackChannel: '#unilever-pod', logo: 'U', logoColor: '#1F36C7',
+                subBrands: ['Dove', 'Ben & Jerry\'s', 'Axe/Lynx', 'Hellmann\'s', 'Magnum', 'Vaseline', 'Knorr', 'Persil'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 34 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                        { title: 'CMO Unilever' },
+                        { title: 'Chief Digital Marketing Officer Unilever' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'VP Marketing Dove' },
+                        { title: 'VP Brand Ben & Jerry\'s' },
+                        { title: 'VP Marketing Axe/Lynx' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Head Marketing Hellmann\'s' },
+                        { title: 'Global Marketing Director Magnum' },
+                        { title: 'Senior Director Brand Vaseline' },
+                        { title: 'Marketing Director Knorr' },
+                        { title: 'Head Marketing Persil' }
+                    ]
+                }
+            },
+            {
+                name: 'Meta', category: 'tech', categoryLabel: 'Tech',
+                slackChannel: '#meta-pod', logo: 'M', logoColor: '#0668E1',
+                subBrands: ['Facebook', 'Instagram', 'WhatsApp', 'Threads', 'Meta Quest', 'Reality Labs', 'Meta AI'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 6 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                        { title: 'Chief Brand Officer Meta' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'VP Marketing Meta Quest/VR' },
+                        { title: 'VP Marketing Reality Labs' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Head Marketing Instagram' },
+                        { title: 'Head Marketing WhatsApp' },
+                        { title: 'Global Marketing Director Threads' },
+                        { title: 'Senior Director Brand Marketing Facebook' },
                         { title: 'Head Marketing Meta AI' }
                     ]
                 }
             },
             {
-                name: 'Universal Pictures', category: 'entertainment', categoryLabel: 'Entertainment', slackChannel: '#universal-pod', logo: 'U', logoColor: '#FF6B00',
-                subBrands: ['Universal Pictures', 'Focus Features', 'DreamWorks', 'Peacock', 'Illumination', 'Universal Music'],
-                hubspotNote: 'HubSpot has 8 contacts (Global President Marketing, SVP Marketing, EVP Multicultural Marketing, VP Brand Marketing, VP Creative Partnerships + 3 others). Below are roles NOT in HubSpot.',
+                name: 'Epic Games / Fortnite', category: 'gaming', categoryLabel: 'Gaming',
+                slackChannel: '#epic-games-pod', logo: 'E', logoColor: '#2F2D2E',
+                subBrands: ['Fortnite', 'Rocket League', 'Fall Guys', 'Epic Games Store', 'Unreal Engine'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 52 contacts already tracked',
                 contacts: {
-                    'C-Suite': [{ title: 'CMO NBCUniversal' }],
-                    'SVP/VP Level': [{ title: 'VP Marketing Focus Features' }, { title: 'VP Marketing DreamWorks' }, { title: 'VP Marketing Peacock' }],
+                    'C-Suite': [
+                        { title: 'CMO Epic Games' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'SVP Brand Marketing Epic Games' },
+                        { title: 'VP Brand Rocket League' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Head Marketing Fortnite' },
+                        { title: 'Global Marketing Director Epic' },
+                        { title: 'Head Marketing Epic Games Store' },
+                        { title: 'Marketing Director Fall Guys' }
+                    ]
+                }
+            },
+            {
+                name: 'Universal Pictures', category: 'entertainment', categoryLabel: 'Entertainment',
+                slackChannel: '#universal-pictures-pod', logo: 'UP', logoColor: '#00A651',
+                subBrands: ['Focus Features', 'DreamWorks', 'Illumination', 'Peacock', 'Universal Music', 'NBCUniversal'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 8 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                        { title: 'CMO Universal Pictures' },
+                        { title: 'CMO NBCUniversal' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'VP Marketing Focus Features' },
+                        { title: 'VP Marketing DreamWorks' },
+                        { title: 'VP Marketing Peacock' }
+                    ],
                     'Head/Director Level': [
                         { title: 'Head Marketing Universal International Pictures' },
                         { title: 'Senior Director Marketing Illumination' },
@@ -163,119 +778,425 @@
                 }
             },
             {
-                name: 'General Mills', category: 'cpg', categoryLabel: 'CPG', slackChannel: '#general-mills-pod', logo: 'G', logoColor: '#D32F2F',
-                subBrands: ['Pillsbury', 'Cheerios', 'Nature Valley', 'Old El Paso', 'Betty Crocker', 'Yoplait', 'Haagen-Dazs', 'Lucky Charms'],
-                hubspotNote: 'HubSpot only has 2 contacts (Global Media Director, Marketing Associate). Almost all senior roles are gaps. Use ZoomInfo to enrich.',
+                name: 'General Mills', category: 'cpg', categoryLabel: 'CPG',
+                slackChannel: '#general-mills-pod', logo: 'GM', logoColor: '#003DA5',
+                subBrands: ['Cheerios', 'Nature Valley', 'Old El Paso', 'Pillsbury', 'H&auml;agen-Dazs', 'Betty Crocker', 'Yoplait', 'Lucky Charms'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 2 contacts already tracked',
                 contacts: {
-                    'C-Suite': [{ title: 'CMO General Mills' }, { title: 'Chief Brand Officer General Mills' }],
-                    'SVP/VP Level': [{ title: 'SVP Marketing General Mills NA' }, { title: 'VP Marketing Cheerios' }, { title: 'VP Brand Nature Valley' }, { title: 'VP Marketing Old El Paso' }],
+                    'C-Suite': [
+                        { title: 'CMO General Mills' },
+                        { title: 'Chief Brand Officer General Mills' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'SVP Marketing General Mills NA' },
+                        { title: 'VP Marketing Cheerios' },
+                        { title: 'VP Brand Nature Valley' },
+                        { title: 'VP Marketing Old El Paso' }
+                    ],
                     'Head/Director Level': [
-                        { title: 'Head Marketing Pillsbury' }, { title: 'Global Marketing Director Haagen-Dazs' },
-                        { title: 'Senior Director Brand Betty Crocker' }, { title: 'Marketing Director Yoplait' },
+                        { title: 'Head Marketing Pillsbury' },
+                        { title: 'Global Marketing Director Haagen-Dazs' },
+                        { title: 'Senior Director Brand Betty Crocker' },
+                        { title: 'Marketing Director Yoplait' },
                         { title: 'Head Marketing Lucky Charms' }
+                    ]
+                }
+            },
+            {
+                name: 'RBI Brands', category: 'food', categoryLabel: 'Food & Bev',
+                slackChannel: '#rbi-brands-pod', logo: 'RBI', logoColor: '#D62300',
+                subBrands: ['Burger King', 'Popeyes', 'Tim Hortons', 'Firehouse Subs'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 15 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                        { title: 'CMO Restaurant Brands International' },
+                        { title: 'CMO Burger King Global' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'SVP Marketing Burger King NA' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Head Marketing Firehouse Subs' },
+                        { title: 'Global Marketing Director Burger King' },
+                        { title: 'Senior Director Digital Marketing Popeyes' },
+                        { title: 'Head Marketing Burger King UK' }
+                    ]
+                }
+            },
+            {
+                name: 'Sky', category: 'entertainment', categoryLabel: 'Entertainment',
+                slackChannel: '#sky-pod', logo: 'S', logoColor: '#E10A0A',
+                subBrands: ['Sky Sports', 'NOW TV', 'Sky Cinema', 'Sky Atlantic', 'Sky News', 'Sky Bet'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 64 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                        { title: 'CMO Sky Group' },
+                        { title: 'Chief Brand Officer Sky' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'SVP Marketing Sky Sports' },
+                        { title: 'VP Marketing NOW TV' },
+                        { title: 'VP Brand Sky Cinema' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Head Marketing Sky Atlantic' },
+                        { title: 'Global Marketing Director Sky News' },
+                        { title: 'Senior Director Marketing Sky Bet' },
+                        { title: 'Marketing Director Sky Sports' }
+                    ]
+                }
+            },
+            {
+                name: 'LEGO', category: 'retail', categoryLabel: 'Retail',
+                slackChannel: '#lego-pod', logo: 'L', logoColor: '#FFD700',
+                subBrands: ['LEGO Star Wars', 'LEGO City', 'LEGO Technic', 'LEGO Friends', 'LEGO Ideas', 'LEGO Duplo', 'LEGO Digital'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 22 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                        { title: 'CMO LEGO Group' },
+                        { title: 'Chief Brand Officer LEGO' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'VP Marketing LEGO Americas' },
+                        { title: 'VP Brand LEGO Digital' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Head Marketing LEGO Star Wars' },
+                        { title: 'Global Marketing Director LEGO City' },
+                        { title: 'Marketing Director LEGO Technic' },
+                        { title: 'Senior Director Brand LEGO Friends' },
+                        { title: 'Head Marketing LEGO Ideas' },
+                        { title: 'Marketing Director LEGO Duplo' }
+                    ]
+                }
+            },
+            {
+                name: 'Samsung', category: 'tech', categoryLabel: 'Tech',
+                slackChannel: '#samsung-pod', logo: 'S', logoColor: '#1428A0',
+                subBrands: ['Galaxy', 'Samsung TV', 'Bespoke', 'Galaxy Z Flip/Fold', 'SmartThings', 'Galaxy Watch', 'Galaxy Buds', 'Samsung Ads'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 139 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'SVP Marketing Samsung North America' },
+                        { title: 'VP Marketing Galaxy' },
+                        { title: 'VP Marketing Samsung TV/Display' },
+                        { title: 'VP Brand Samsung Bespoke' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Global Marketing Director Samsung' },
+                        { title: 'Senior Director Brand Marketing SmartThings' },
+                        { title: 'Marketing Director Galaxy Watch' },
+                        { title: 'Head Marketing Samsung Ads' },
+                        { title: 'VP Marketing Samsung Galaxy AI' }
+                    ]
+                }
+            },
+            {
+                name: 'Logitech', category: 'tech', categoryLabel: 'Tech',
+                slackChannel: '#logitech-pod', logo: 'L', logoColor: '#00B8FC',
+                subBrands: ['Logitech G', 'MX Series', 'Streamlabs', 'Ultimate Ears', 'Blue Microphones', 'Jaybird'],
+                hubspotNote: 'Showing roles NOT in HubSpot &ndash; 25 contacts already tracked',
+                contacts: {
+                    'C-Suite': [
+                        { title: 'Chief Brand Officer Logitech' }
+                    ],
+                    'SVP/VP Level': [
+                        { title: 'SVP Marketing Logitech' },
+                        { title: 'VP Marketing Logitech G Gaming' },
+                        { title: 'VP Brand MX Series' },
+                        { title: 'VP Marketing Streamlabs' }
+                    ],
+                    'Head/Director Level': [
+                        { title: 'Head Marketing Logitech G Gaming' },
+                        { title: 'Head Marketing Ultimate Ears' },
+                        { title: 'Global Marketing Director Logitech' },
+                        { title: 'Marketing Director Blue Microphones' },
+                        { title: 'Head Marketing Jaybird' }
                     ]
                 }
             }
         ];
-        let currentFilter = 'all'; let currentSearch = '';
-        const categoryBadges = { 'cpg': 'b-cpg', 'tech': 'b-tech', 'entertainment': 'b-ent', 'gaming': 'b-gaming', 'qsr': 'b-qsr', 'spirits': 'b-spirits', 'hospitality': 'b-hospitality', 'travel': 'b-travel', 'beauty': 'b-beauty', 'retail': 'b-retail', 'betting': 'b-betting' };
-        window.addEventListener('DOMContentLoaded', () => { renderCompanies(); updateProgress(); });
+
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // Category badge mapping
+        const categoryBadges = {
+            'cpg': 'b-cpg',
+            'tech': 'b-tech',
+            'entertainment': 'b-ent',
+            'gaming': 'b-gaming',
+            'qsr': 'b-qsr',
+            'spirits': 'b-spirits',
+            'hospitality': 'b-hospitality',
+            'travel': 'b-travel',
+            'beauty': 'b-beauty',
+            'retail': 'b-retail',
+            'betting': 'b-betting'
+        };
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCompanies();
+            updateProgress();
+        });
+
         function renderCompanies() {
-            const grid = document.getElementById('companies-grid'); grid.innerHTML = '';
+            const grid = document.getElementById('companies-grid');
+            grid.innerHTML = '';
+
             const filtered = companies.filter(c => {
                 const matchesCategory = currentFilter === 'all' || c.category === currentFilter;
-                const matchesSearch = c.name.toLowerCase().includes(currentSearch.toLowerCase()) || c.subBrands.some(b => b.toLowerCase().includes(currentSearch.toLowerCase()));
+                const matchesSearch = c.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    c.subBrands.some(b => b.toLowerCase().includes(currentSearch.toLowerCase()));
                 return matchesCategory && matchesSearch;
             });
-            filtered.forEach((company, idx) => { const card = createCompanyCard(company, idx); grid.appendChild(card); });
+
+            filtered.forEach((company, idx) => {
+                const card = createCompanyCard(company, idx);
+                grid.appendChild(card);
+            });
         }
+
         function createCompanyCard(company, idx) {
-            const card = document.createElement('div'); card.className = 'card'; card.setAttribute('data-company', company.name);
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.setAttribute('data-company', company.name);
+
+            // Calculate contacted count for this company
             const contactedCount = getCompanyContactedCount(company.name);
             const totalCount = Object.values(company.contacts).reduce((sum, arr) => sum + arr.length, 0);
+
             const categoryBadge = categoryBadges[company.category];
+
             let sectionsHTML = '';
             for (const [section, contacts] of Object.entries(company.contacts)) {
                 const linksHTML = contacts.map((contact, cIdx) => {
                     const cbId = `cb_${company.name.replace(/\s+/g, '_')}_${section.replace(/[\/\s]+/g, '_')}_${cIdx}`;
                     const isChecked = localStorage.getItem(cbId) === 'true';
                     const linkedInUrl = `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(contact.title + ' ' + company.name)}`;
-                    return `<div class="link-item ${isChecked ? 'contacted' : ''}"><input type="checkbox" id="${cbId}" ${isChecked ? 'checked' : ''} onchange="toggleContact('${cbId}', '${company.name}')"><a href="${linkedInUrl}" target="_blank">${contact.title}</a></div>`;
+
+                    return `
+                        <div class="link-item ${isChecked ? 'contacted' : ''}">
+                            <input type="checkbox" id="${cbId}" ${isChecked ? 'checked' : ''}
+                                   onchange="toggleContact('${cbId}', '${company.name}')">
+                            <a href="${linkedInUrl}" target="_blank">${contact.title}</a>
+                        </div>
+                    `;
                 }).join('');
-                sectionsHTML += `<div class="section"><div class="section-title">${section}</div><div class="links-list">${linksHTML}</div></div>`;
+
+                sectionsHTML += `
+                    <div class="section">
+                        <div class="section-title">${section}</div>
+                        <div class="links-list">${linksHTML}</div>
+                    </div>
+                `;
             }
-            card.innerHTML = `<div class="card-header"><div class="card-logo" style="background: ${company.logoColor}">${company.logo}</div><div class="card-info"><h3>${company.name}</h3><p>${company.slackChannel}</p></div></div><div class="card-badges"><span class="badge ${categoryBadge}">${company.categoryLabel}</span><span class="badge" style="background: rgba(255,107,107,0.15); color: #ff6b6b; border-color: #ff6b6b;">HubSpot Gap</span></div><div class="slack-channel">${company.slackChannel}</div>${company.hubspotNote ? `<div style="background: rgba(0,119,181,0.08); border-left: 3px solid #0077b5; padding: 8px 10px; margin: 8px 0; font-size: 11px; color: #aaa; border-radius: 0 4px 4px 0;">${company.hubspotNote}</div>` : ''}<div class="contacted-count">${contactedCount} / ${totalCount} contacted</div><div class="sub-brands">${company.subBrands.map(b => `<span class="sub-brand">${b}</span>`).join('')}</div><button class="btn-activity" onclick="fetchActivity(this, '${company.name}')">Get Recent LinkedIn Activity</button><div class="activity-panel" id="activity_${company.name.replace(/\s+/g, '_')}"></div>${sectionsHTML}`;
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-logo" style="background: ${company.logoColor}">${company.logo}</div>
+                    <div class="card-info">
+                        <h3>${company.name}</h3>
+                        <p>${company.slackChannel}</p>
+                    </div>
+                </div>
+
+                <div class="card-badges">
+                    <span class="badge ${categoryBadge}">${company.categoryLabel}</span>
+                </div>
+
+                <div class="slack-channel">${company.slackChannel}</div>
+
+                <div class="contacted-count">${contactedCount} / ${totalCount} contacted</div>
+
+                <div class="sub-brands">
+                    ${company.hubspotNote ? `<div style="margin-bottom:8px;padding:6px 10px;background:rgba(255,152,0,0.08);border:1px solid rgba(255,152,0,0.2);border-radius:6px;font-size:11px;color:#e65100;">&#9888; ${company.hubspotNote}</div>` : ''}
+                            ${company.subBrands.map(b => `<span class="sub-brand">${b}</span>`).join('')}
+                </div>
+
+                <button class="btn-activity" onclick="fetchActivity(this, '${company.name}')">
+                    Get Recent LinkedIn Activity
+                </button>
+
+                <div class="activity-panel" id="activity_${company.name.replace(/\s+/g, '_')}"></div>
+
+                ${sectionsHTML}
+            `;
+
             return card;
         }
+
         function toggleContact(checkboxId, companyName) {
             const checkbox = document.getElementById(checkboxId);
             const linkItem = checkbox.closest('.link-item');
-            if (checkbox.checked) { localStorage.setItem(checkboxId, 'true'); linkItem.classList.add('contacted'); }
-            else { localStorage.removeItem(checkboxId); linkItem.classList.remove('contacted'); }
+
+            if (checkbox.checked) {
+                localStorage.setItem(checkboxId, 'true');
+                linkItem.classList.add('contacted');
+            } else {
+                localStorage.removeItem(checkboxId);
+                linkItem.classList.remove('contacted');
+            }
+
             updateProgress();
         }
+
         function getCompanyContactedCount(companyName) {
+            let count = 0;
             const items = document.querySelectorAll(`[data-company="${companyName}"] input[type="checkbox"]:checked`);
             return items.length;
         }
+
         function updateProgress() {
             const allCheckboxes = document.querySelectorAll('input[type="checkbox"]');
             const checkedCheckboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-            const total = allCheckboxes.length; const contacted = checkedCheckboxes.length;
+            const total = allCheckboxes.length;
+            const contacted = checkedCheckboxes.length;
+
             const percentage = total > 0 ? (contacted / total) * 100 : 0;
             document.getElementById('progress-fill').style.width = percentage + '%';
-            document.getElementById('overall-count').textContent = contacted + ' / ' + total + ' Contacted';
+            document.getElementById('overall-count').textContent = `${contacted} / ${total} Contacted`;
+
+            // Update company-level counts
             companies.forEach(company => {
                 const card = document.querySelector(`[data-company="${company.name}"]`);
                 if (card) {
                     const contactedCount = getCompanyContactedCount(company.name);
                     const totalCount = Object.values(company.contacts).reduce((sum, arr) => sum + arr.length, 0);
                     const countElement = card.querySelector('.contacted-count');
-                    if (countElement) { countElement.textContent = contactedCount + ' / ' + totalCount + ' contacted'; }
+                    if (countElement) {
+                        countElement.textContent = `${contactedCount} / ${totalCount} contacted`;
+                    }
                 }
             });
         }
+
         function filterByCategory(category) {
             currentFilter = category;
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             renderCompanies();
         }
-        function searchCompanies() { currentSearch = document.getElementById('search-input').value; renderCompanies(); }
+
+        function searchCompanies() {
+            currentSearch = document.getElementById('search-input').value;
+            renderCompanies();
+        }
+
         function clearAllCheckboxes() {
             if (confirm('Are you sure you want to clear all checkboxes? This cannot be undone.')) {
-                document.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; localStorage.removeItem(cb.id); cb.closest('.link-item').classList.remove('contacted'); });
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                    localStorage.removeItem(cb.id);
+                    cb.closest('.link-item').classList.remove('contacted');
+                });
                 updateProgress();
             }
         }
+
         function exportContacted() {
             const contacted = [];
             document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-                const linkItem = cb.closest('.link-item'); const link = linkItem.querySelector('a');
+                const linkItem = cb.closest('.link-item');
+                const link = linkItem.querySelector('a');
                 const company = linkItem.closest('.card').querySelector('h3').textContent;
-                contacted.push({ company: company, role: link.textContent.trim(), url: link.href });
+                contacted.push({
+                    company: company,
+                    role: link.textContent.trim(),
+                    url: link.href
+                });
             });
-            if (contacted.length === 0) { alert('No contacted leads to export yet.'); return; }
-            const csv = 'Company,Role,LinkedIn URL\n' + contacted.map(c => '"' + c.company + '","' + c.role + '","' + c.url + '"').join('\n');
+
+            if (contacted.length === 0) {
+                alert('No contacted leads to export yet.');
+                return;
+            }
+
+            // Create CSV
+            const csv = 'Company,Role,LinkedIn URL\n' + contacted.map(c =>
+                `"${c.company}","${c.role}","${c.url}"`
+            ).join('\n');
+
+            // Download
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url;
-            a.download = 'linkedin-contacts-' + new Date().toISOString().split('T')[0] + '.csv';
-            a.click(); window.URL.revokeObjectURL(url);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `linkedin-contacts-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
         }
+
         async function fetchActivity(btn, company) {
-            const panelId = 'activity_' + company.replace(/\s+/g, '_');
+            const panelId = `activity_${company.replace(/\s+/g, '_')}`;
             const panel = document.getElementById(panelId);
-            if (panel.classList.contains('active')) { panel.classList.remove('active'); return; }
+
+            if (panel.classList.contains('active')) {
+                panel.classList.remove('active');
+                return;
+            }
+
             panel.classList.add('active');
             panel.innerHTML = '<div class="activity-loading">Loading recent activity...</div>';
-            btn.classList.add('loading'); btn.disabled = true;
+            btn.classList.add('loading');
+            btn.disabled = true;
+
             try {
-                panel.innerHTML = '<div class="activity-item">Check LinkedIn directly for the latest updates from ' + company + ' marketing executives.</div>';
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': 'YOUR_ANTHROPIC_API_KEY',
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1024,
+                        tools: [
+                            {
+                                name: 'web_search',
+                                description: 'Search the web for information',
+                                input_schema: {
+                                    type: 'object',
+                                    properties: {
+                                        query: { type: 'string', description: 'Search query' }
+                                    },
+                                    required: ['query']
+                                }
+                            }
+                        ],
+                        messages: [
+                            {
+                                role: 'user',
+                                content: `Find recent LinkedIn activity and news about ${company} marketing executives. Look for posts, articles, or announcements from the past 30 days.`
+                            }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                let activityHTML = '';
+
+                if (data.content && data.content.length > 0) {
+                    data.content.forEach(block => {
+                        if (block.type === 'text') {
+                            activityHTML += `<div class="activity-item">${block.text}</div>`;
+                        }
+                    });
+                } else {
+                    activityHTML = '<div class="activity-item">No recent activity found. Check LinkedIn directly for the latest updates.</div>';
+                }
+
+                panel.innerHTML = activityHTML || '<div class="activity-item">Unable to fetch activity at this time. Please check LinkedIn directly.</div>';
             } catch (error) {
-                panel.innerHTML = '<div class="activity-error">Error: ' + error.message + '</div>';
+                panel.innerHTML = `<div class="activity-error">Error fetching activity: ${error.message}. Add your Anthropic API key to use this feature.</div>`;
             }
-            btn.classList.remove('loading'); btn.disabled = false;
+
+            btn.classList.remove('loading');
+            btn.disabled = false;
         }
     </script>
 </body>
